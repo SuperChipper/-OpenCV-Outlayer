@@ -30,7 +30,8 @@ Mat Detect::Green_channel(){
     return RGBchannels[1];
 }
 Mat Detect::Binary_Blue(){
-    threshold(Blue_channel(),Binary,125,255,THRESH_BINARY);
+    threshold(Blue_channel(),Binary,210,255,THRESH_BINARY);
+    morphologyEx(Binary,erodeBinary,MORPH_CLOSE,struct0,Point(-1,-1),2);
     return Binary;
 }
 Mat Detect::Binary_Red(){
@@ -83,5 +84,4 @@ void Detect::Draw_rect(RotatedRect rrect) {
 
     }
     circle(img,cent,2,Scalar(200,150,0),2,8,0);
-    //return img;
 }
