@@ -22,37 +22,41 @@ int main(int argc, char *argv[])
     //Canny(channel1,edge,80,180);
     bin=image.Binary_Blue();
     //img=image.Diff();
-    findContours(bin,contourR,hierarchy1,RETR_TREE,CHAIN_APPROX_SIMPLE);
-    contour =contourR;
+    findContours(bin,contourB,hierarchy1,RETR_TREE,CHAIN_APPROX_SIMPLE);
+    contour =contourB;
     vector <RotatedRect> rrect;
     for(auto &cont:contour){
         RotatedRect r=minAreaRect(cont);
         rrect.push_back(r);
-        image.Draw_rect(r);
+
         Point2f points[4];r.points(points);
         //cout<<rrect[i].center<<"\t"<<points[0]<<endl;
     }
+    vector <Point2f> rec_points;
+    vector <RotatedRect> criticalrect;
     for(auto &rec: rrect){
-        cout<<rec.center<<endl;
+        //cout<<rec.center<<endl;
+
+        if(((rec.angle>55)&&(rec.angle<125))||((rec.angle>235)&&(rec.angle<305))) {
+            if((rec.size.width/rec.size.height>4)&&(rec.size.width/rec.size.height<15)&&(rec.size.height>2)) {
+                for(auto &ptr:rec_points){
+                    if((abs(ptr.x-rec.center.x)>2*rec.size.width)&&(abs(ptr.x-rec.center.x)<6*rec.size.width)&&((ptr.y-rec.center.y==0)||(abs(ptr.x-rec.center.x)/abs(ptr.y-rec.center.y)>5))){
+                        line(image.Get(),ptr,rec.center,Scalar(100,200,255),2,8,0);;
+                        circle(image.Get(),(rec.center+ptr)/2,2,Scalar(255,20,255),2,8,0);
+                    }
+                }
+                criticalrect.push_back(rec);
+                rec_points.push_back(rec.center);
+                image.Draw_rect(rec);
+            }
+        }
     }
-    //image.channels_Upd();
-    //threshold(image.Red_channel(),bin,251,255,THRESH_BINARY);
-    //findContours(bin,contourR,hierarchy1,RETR_TREE,CHAIN_APPROX_SIMPLE);
-    //contour =image.CompareContour(contourB,contourR);
     //Detect result(img);
     //for(int i=0;i<contour.size();i++){
     //    rrect[i]=minAreaRect(contour[i]);
     //    result.Draw_rect(rrect[i]);
     //}
-
-    //drawContours(img,contour,-1,Scalar(0,50,250),3);
-    //for (auto i = hierarchy1.begin(); i != hierarchy1.end(); i++) {
-    //    std::cout << *i << ' ';
-    //}
-    //for (auto i = contour.begin(); i != contour.end(); i++) {
-    //    std::cout << *i << ' ';
-    //}
-    imshow("con",image.Red_channel());
+    imshow("con",bin);
     imshow("img",image.Get());
     //imwrite("../testpic.png",channel1);
     waitKey(0);

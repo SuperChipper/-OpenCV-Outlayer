@@ -30,8 +30,8 @@ Mat Detect::Green_channel(){
     return RGBchannels[1];
 }
 Mat Detect::Binary_Blue(){
-    threshold(Blue_channel(),Binary,210,255,THRESH_BINARY);
-    morphologyEx(Binary,erodeBinary,MORPH_CLOSE,struct0,Point(-1,-1),2);
+    threshold(Blue_channel(),Binary,200,255,THRESH_BINARY);
+    morphologyEx(Binary,erodeBinary,MORPH_CLOSE,struct0,Point(-1,-1),1);
     return Binary;
 }
 Mat Detect::Binary_Red(){
