@@ -12,38 +12,46 @@ using namespace cv;
 class Detect{
 private:
     Mat RGBchannels[3];
+    //储存三个颜色通道
     Mat Binary;
-    Mat struct0;
+    //用于返回二值化结果
+    Mat _struct;
+    //形态学操作算子
     Mat erodeBinary;
-    Mat image;
+    //形态学操作结果
+    Mat _image;
+    //储存图像结果
 public:
     Detect(Mat frame);
-    Mat Get();
-    //Mat channels_Upd();
-    Mat Blue_channel();
+    Mat Get();//返回图像结果
+    Mat Blue_channel();//返回相应颜色通道
     Mat Red_channel();
     Mat Green_channel();
-    Mat Binary_Blue();
+    Mat Binary_Blue();//返回相应颜色通道二值化的结果
     Mat Binary_Red();
     Mat Binary_Green();
-    Mat Diff();
-    vector<vector<Point>> CompareContour(vector<vector<Point>>,vector<vector<Point>>);
-    void Draw_rect(RotatedRect);
+    Mat Diff();//将三个通道颜色结合比较再二值化
+    vector<vector<Point>> CompareContour(vector<vector<Point>>,vector<vector<Point>>);//轮廓矩比较（暂时不用）
+    void Draw_rect(RotatedRect);//绘制矩形
 };
-/*
- *
- */
+
+
 class Rrect{
 private:
 
     vector<RotatedRect> rrect;
+    //最小外接矩形的集合
     vector<Point2f> rec_points;
-    vector<RotatedRect> criticalrect;
+    //疑似为装甲板轮廓的外接矩形的中心点
+    vector<RotatedRect> critical_rect;
+    //疑似为装甲板轮廓的外接矩形
 public:
-    Rrect(vector<vector<Point>> contour);
-    void find(Detect);
+    Rrect(vector<vector<Point>> contour);//寻找最小外接矩形
+    void find(Detect);//在矩形中找到装甲板并绘制
 };
-void Detector(Mat img);
-void Detect_target(string type,string path,int waitkey);
+
+void Detector(Mat);//检测图像
+
+void Detect_target(string,string,int);//根据文件类型调用检测函数
 
 #endif //VIDEO_TEST_CPP_DETECT_H
