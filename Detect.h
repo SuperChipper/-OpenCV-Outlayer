@@ -6,6 +6,7 @@
 #define VIDEO_TEST_CPP_DETECT_H
 #include <opencv2/opencv.hpp>
 #include <vector>
+#include <iostream>
 using namespace std;
 using namespace cv;
 class Detect{
@@ -15,7 +16,6 @@ private:
     Mat struct0;
     Mat erodeBinary;
     Mat image;
-
 public:
     Detect(Mat frame);
     Mat Get();
@@ -30,5 +30,20 @@ public:
     vector<vector<Point>> CompareContour(vector<vector<Point>>,vector<vector<Point>>);
     void Draw_rect(RotatedRect);
 };
+/*
+ *
+ */
+class Rrect{
+private:
+
+    vector<RotatedRect> rrect;
+    vector<Point2f> rec_points;
+    vector<RotatedRect> criticalrect;
+public:
+    Rrect(vector<vector<Point>> contour);
+    void find(Detect);
+};
+void Detector(Mat img);
+void Detect_target(string type,string path,int waitkey);
 
 #endif //VIDEO_TEST_CPP_DETECT_H

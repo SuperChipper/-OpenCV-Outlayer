@@ -30,7 +30,7 @@ Mat Detect::Green_channel(){
     return RGBchannels[1];
 }
 Mat Detect::Binary_Blue(){
-    threshold(Blue_channel(),Binary,200,255,THRESH_BINARY);
+    threshold(Blue_channel(),Binary,230,255,THRESH_BINARY);
     morphologyEx(Binary,erodeBinary,MORPH_CLOSE,struct0,Point(-1,-1),1);
     return Binary;
 }
@@ -44,9 +44,9 @@ Mat Detect::Binary_Green() {
     return Binary;
 }
 Mat Detect::Diff(){
-    threshold(0.6*Binary_Blue()+0.4*Binary_Green()-Binary_Red(),Binary,160,255,THRESH_BINARY);
+    threshold(0.2*Binary_Blue()+0.6*Binary_Green()+0.2*Binary_Red(),Binary,230,255,THRESH_BINARY);
 
-    morphologyEx(Binary,erodeBinary,MORPH_CLOSE,struct0,Point(-1,-1),2);
+    //morphologyEx(Binary,erodeBinary,MORPH_CLOSE,struct0,Point(-1,-1),1);
     return erodeBinary;
 };
 vector<vector<Point>> Detect::CompareContour(vector<vector<Point>> contourR,vector<vector<Point>>contourB) {//预期返回一个向量包含比较后相似的轮廓
@@ -84,4 +84,77 @@ void Detect::Draw_rect(RotatedRect rrect) {
 
     }
     circle(img,cent,2,Scalar(200,150,0),2,8,0);
+}
+void Detector(Mat img){
+    namedWindow("img", WINDOW_FREERATIO);
+    namedWindow("bin", WINDOW_FREERATIO);
+    Detect image(img);//初始化，传入图像
+    Mat bin;
+    //vector<vector<Point>> contourR;
+    //vector<vector<Point>> contourB;
+    vector<vector<Point>> contour;
+    //vector<Vec4i> hierarchy0;
+    vector<Vec4i> hierarchy1;
+    bin = image.Diff();
+    findContours(bin, contour, hierarchy1, RETR_TREE, CHAIN_APPROX_SIMPLE);
+    vector<RotatedRect> rrect;
+    Rrect rec(contour);
+    rec.find(image);
+    imshow("bin", bin);
+    imshow("img", image.Get());
+}
+void Detect_target(string type,string path,int waitkey){
+    Mat img;
+    if(type=="video"){
+        VideoCapture video(path);
+        while(1){
+            video>>img;
+            if(img.empty()){
+                break;
+            }
+            Detector(img);
+            waitKey(waitkey);
+        }
+    }
+    else if(type=="image"){
+        img=imread(path);
+        if (!img.empty()) {
+            Detector(img);
+            waitKey(waitkey);
+        }
+
+    }
+    else
+        cout<<"Error, invalid type, please insert \"video\" or \"image\"";
+}
+Rrect::Rrect(vector<vector<Point>> contour) {
+    for (auto &cont: contour) {
+        RotatedRect r = minAreaRect(cont);
+        rrect.push_back(r);
+    }
+}
+
+void Rrect::find(Detect image) {
+    for (auto &rec: rrect) {
+        if (((rec.angle > 55) && (rec.angle < 125)) || ((rec.angle > 235) && (rec.angle < 305))) {
+            if ((rec.size.width / rec.size.height > 4) && (rec.size.width / rec.size.height < 15)) {
+                for (auto &cri: criticalrect) {
+                    Point2f ptr = cri.center;
+                    if ((abs(ptr.x - rec.center.x) > 2 * rec.size.width) &&
+                        (abs(ptr.x - rec.center.x) < 6 * rec.size.width) &&
+                        ((ptr.y - rec.center.y == 0) || (abs(ptr.x - rec.center.x) / abs(ptr.y - rec.center.y) > 4))) {
+                        if((rec.size.width>0.9*cri.size.width)&&(0.9*rec.size.width<cri.size.width))
+                        {
+                            line(image.Get(), ptr, rec.center, Scalar(100, 200, 255), 2, 8, 0);;
+                            circle(image.Get(), (rec.center + ptr) / 2, 2, Scalar(255, 20, 255), 2, 8, 0);
+                        }
+                    }
+                }
+                criticalrect.push_back(rec);
+                rec_points.push_back(rec.center);
+                cout<<rec.size.width<<"\t"<<rec.size.height<<endl;
+                image.Draw_rect(rec);
+            }
+        }
+    }
 }
