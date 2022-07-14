@@ -1,7 +1,13 @@
 //
 // Created by zihan on 22-7-9.
 //
-
+/**
+ *
+ * @file Detect.h
+ * @author 林梓涵
+ * @version 1.0
+ * @date 2022.7.14
+ */
 #ifndef VIDEO_TEST_CPP_DETECT_H
 #define VIDEO_TEST_CPP_DETECT_H
 #include <opencv2/opencv.hpp>

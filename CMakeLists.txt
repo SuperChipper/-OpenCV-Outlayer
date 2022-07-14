@@ -6,7 +6,7 @@ find_package(OpenCV REQUIRED)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(cv_test main.cpp video_test.cpp Detect.cpp)
+add_executable(cv_test main.cpp Detect.cpp)
 
 target_include_directories(cv_test PUBLIC ${OpenCV_INCLUDE_DIRS})
 

@@ -1,6 +1,13 @@
 //
 // Created by zihan on 22-7-9.
 //
+/**
+ *
+ * @file Detect.cpp
+ * @author 林梓涵
+ * @version 1.0
+ * @date 2022.7.14
+ */
 #include "Detect.h"
 
 /**
@@ -54,9 +61,9 @@ Mat Detect::Binary_Green() {
  * @return 返回图像的二值化结果
  */
 Mat Detect::Diff(){
-    threshold(0.2*Blue_channel()+0.6*Green_channel()+0.2*Binary_Red(),Binary,230,255,THRESH_BINARY);
+    threshold(0.3*Blue_channel()+0.5*Green_channel()+0.2*Red_channel(),Binary,190,255,THRESH_BINARY);
 
-    morphologyEx(Binary,erodeBinary,MORPH_CLOSE,_struct,Point(-1,-1),1);
+    morphologyEx(Binary,erodeBinary,MORPH_DILATE,_struct,Point(-1,-1),1);
     return erodeBinary;
 };
 /**
@@ -177,13 +184,14 @@ Rrect::Rrect(vector<vector<Point>> contour) {
 void Rrect::find(Detect image) {
     for (auto &rec: rrect) {
         if (((rec.angle > 40) && (rec.angle < 140)) || ((rec.angle > 220) && (rec.angle < 320))) {
-            if ((rec.size.width / rec.size.height > 2) && (rec.size.width / rec.size.height < 17)) {
+            if ((rec.size.width / rec.size.height > 1.9) && (rec.size.width / rec.size.height < 16)) {
                 for (auto &cri: critical_rect) {
                     Point2f ptr = cri.center;
-                    if ((abs(ptr.x - rec.center.x) > 2.2 * rec.size.width) &&
-                        (abs(ptr.x - rec.center.x) < 7 * rec.size.width) &&
-                        ((ptr.y - rec.center.y == 0) || (abs(ptr.x - rec.center.x) / abs(ptr.y - rec.center.y) > 5))) {
-                        if((rec.size.width>0.8*cri.size.width)&&(0.8*rec.size.width<cri.size.width))
+                    if ((abs(ptr.x - rec.center.x) > 1.9* rec.size.width) &&
+                        (abs(ptr.x - rec.center.x) < 4.4 * rec.size.width) &&
+                        ((ptr.y - rec.center.y == 0) || (abs(ptr.x - rec.center.x) / abs(ptr.y - rec.center.y) > 4))
+                                &&(abs(cri.angle-rec.angle)<4)) {
+                        if((rec.size.width>0.7*cri.size.width)&&(0.7*rec.size.width<cri.size.width))
                         {
                             line(image.Get(), ptr, rec.center, Scalar(100, 200, 255), 2, 8, 0);;
                             circle(image.Get(), (rec.center + ptr) / 2, 2, Scalar(255, 20, 255), 2, 8, 0);
@@ -193,7 +201,7 @@ void Rrect::find(Detect image) {
                 critical_rect.push_back(rec);
                 rec_points.push_back(rec.center);
                 //cout<<rec.size.width<<"\t"<<rec.size.height<<endl;
-                image.Draw_rect(rec);
+                //image.Draw_rect(rec);
             }
         }
     }
